@@ -65,6 +65,43 @@ const borrarLibro = async (id: string) => {
     return "Libro eliminado correctamente ✅";
 };
 
+// ACTUALIZAR
+const actualizarLibro = async (
+    id: string,
+    titulo: string,
+    autor: string,
+    precio: number,
+    stock: number
+) => {
+    if (!id) {
+        return "ID obligatorio para actualizar el libro";
+    }
+
+    if (!ObjectId.isValid(id)) {
+        return "El ID proporcionado no es válido";
+    }
+
+    const resultado = await librosCC.updateOne(
+        { _id: new ObjectId(id) },
+        {
+            $set: {
+                titulo,
+                autor,
+                precio,
+                stock
+            }
+        }
+    );
+
+    if (resultado.matchedCount === 0) {
+        return "No se encontró ningún libro con ese ID";
+    }
+
+    return await librosCC.findOne({
+        _id: new ObjectId(id)
+    });
+};
+
 // COMANDOS
 switch (accion) {
 
@@ -109,4 +146,22 @@ switch (accion) {
         process.exit(0);
         break;
 
+    case "update":
+        const tituloActualizar = argumentos[2];
+        const autorActualizar = argumentos[3];
+        const precioActualizar = Number(argumentos[4]);
+        const stockActualizar = Number(argumentos[5]);
+
+        console.log(
+            await actualizarLibro(
+                id,
+                tituloActualizar,
+                autorActualizar,
+                precioActualizar,
+                stockActualizar
+            )
+        );
+
+        process.exit(0);
+        break;
 }
