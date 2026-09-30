@@ -44,6 +44,27 @@ const agregarLibro = async (
     });
 };
 
+// ELIMINAR
+const borrarLibro = async (id: string) => {
+    if (!id) {
+        return "ID obligatorio para borrar el libro";
+    }
+
+    if (!ObjectId.isValid(id)) {
+        return "El ID proporcionado no es válido";
+    }
+
+    const resultado = await librosCC.deleteOne({
+        _id: new ObjectId(id)
+    });
+
+    if (resultado.deletedCount === 0) {
+        return "No se encontró ningún libro con ese ID";
+    }
+
+    return "Libro eliminado correctamente ✅";
+};
+
 // COMANDOS
 switch (accion) {
 
@@ -81,4 +102,11 @@ switch (accion) {
 
         process.exit(0);
         break;
+
+    case "delete":
+        console.log(await borrarLibro(id));
+
+        process.exit(0);
+        break;
+
 }
