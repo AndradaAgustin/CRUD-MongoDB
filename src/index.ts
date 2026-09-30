@@ -4,12 +4,12 @@ const client = new MongoClient("mongodb://localhost:27017");
 
 await client.connect();
 
-const db = client.db("biblioteca");
-const librosCC = db.collection("libros");
-
 const argumentos = process.argv.slice(2);
 const accion = argumentos[0];
 const id = argumentos[1];
+
+const db = client.db("biblioteca");
+const librosCC = db.collection("libros");
 
 interface ILibro {
     titulo: string;
@@ -17,6 +17,11 @@ interface ILibro {
     precio: number;
     stock: number;
 }
+
+// LEER
+const leerLibros = async () => {
+    return await librosCC.find().toArray();
+};
 
 // CREAR
 const agregarLibro = async (
@@ -37,69 +42,6 @@ const agregarLibro = async (
     return await librosCC.findOne({
         _id: resultado.insertedId
     });
-};
-
-// LEER
-const leerLibros = async () => {
-    return await librosCC.find().toArray();
-};
-
-// ACTUALIZAR
-const actualizarLibro = async (
-    id: string,
-    titulo: string,
-    autor: string,
-    precio: number,
-    stock: number
-) => {
-    if (!id) {
-        return "ID obligatorio para actualizar el libro";
-    }
-
-    if (!ObjectId.isValid(id)) {
-        return "El ID proporcionado no es válido";
-    }
-
-    const resultado = await librosCC.updateOne(
-        { _id: new ObjectId(id) },
-        {
-            $set: {
-                titulo,
-                autor,
-                precio,
-                stock
-            }
-        }
-    );
-
-    if (resultado.matchedCount === 0) {
-        return "No se encontró ningún libro con ese ID";
-    }
-
-    return await librosCC.findOne({
-        _id: new ObjectId(id)
-    });
-};
-
-// ELIMINAR
-const borrarLibro = async (id: string) => {
-    if (!id) {
-        return "ID obligatorio para borrar el libro";
-    }
-
-    if (!ObjectId.isValid(id)) {
-        return "El ID proporcionado no es válido";
-    }
-
-    const resultado = await librosCC.deleteOne({
-        _id: new ObjectId(id)
-    });
-
-    if (resultado.deletedCount === 0) {
-        return "No se encontró ningún libro con ese ID";
-    }
-
-    return "Libro eliminado correctamente ✅";
 };
 
 // COMANDOS
@@ -139,32 +81,4 @@ switch (accion) {
 
         process.exit(0);
         break;
-
-    case "update":
-        const tituloActualizar = argumentos[2];
-        const autorActualizar = argumentos[3];
-        const precioActualizar = Number(argumentos[4]);
-        const stockActualizar = Number(argumentos[5]);
-
-        console.log(
-            await actualizarLibro(
-                id,
-                tituloActualizar,
-                autorActualizar,
-                precioActualizar,
-                stockActualizar
-            )
-        );
-
-        process.exit(0);
-        break;
-
-    case "delete":
-        console.log(await borrarLibro(id));
-
-        process.exit(0);
-        break;
-
-    default:
-        console.log("Comando no existente. Utiliza 'help' para ver los comandos.");
 }
