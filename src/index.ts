@@ -128,6 +128,21 @@ switch (accion) {
         const precioCrear = Number(argumentos[3]);
         const stockCrear = Number(argumentos[4]);
 
+        // Valida título y autor
+        if (!tituloCrear || !autorCrear) {
+            console.log("El título y el autor son obligatorios");
+            process.exit(1);
+        }
+
+        // Valida que precio y stock sean números
+        if (
+            !Number.isFinite(precioCrear) ||
+            !Number.isFinite(stockCrear)
+        ) {
+            console.log("El precio y el stock deben ser números válidos");
+            process.exit(1);
+        }
+
         console.log(
             await agregarLibro(
                 tituloCrear,
@@ -152,6 +167,21 @@ switch (accion) {
         const precioActualizar = Number(argumentos[4]);
         const stockActualizar = Number(argumentos[5]);
 
+        // Valida título y autor
+        if (!tituloActualizar || !autorActualizar) {
+            console.log("El título y el autor son obligatorios");
+            process.exit(1);
+        }
+
+        // Valida que precio y stock sean números
+        if (
+            !Number.isFinite(precioActualizar) ||
+            !Number.isFinite(stockActualizar)
+        ) {
+            console.log("El precio y el stock deben ser números válidos");
+            process.exit(1);
+        }
+
         console.log(
             await actualizarLibro(
                 id,
@@ -164,4 +194,7 @@ switch (accion) {
 
         process.exit(0);
         break;
+        
+    default:
+        console.log("Comando no existente. Utiliza 'help' para ver los comandos.");
 }
