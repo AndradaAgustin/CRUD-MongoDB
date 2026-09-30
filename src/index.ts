@@ -2,7 +2,13 @@ import { MongoClient, ObjectId } from "mongodb";
 
 const client = new MongoClient("mongodb://localhost:27017");
 
-await client.connect();
+try {
+    await client.connect();
+    console.log("Conectado a MongoDB ✅");
+} catch (error) {
+    console.error("No se pudo conectar a MongoDB ❌");
+    process.exit(1);
+}
 
 const argumentos = process.argv.slice(2);
 const accion = argumentos[0];
@@ -61,7 +67,6 @@ const borrarLibro = async (id: string) => {
     if (resultado.deletedCount === 0) {
         return "No se encontró ningún libro con ese ID";
     }
-
     return "Libro eliminado correctamente ✅";
 };
 
@@ -96,6 +101,10 @@ const actualizarLibro = async (
     if (resultado.matchedCount === 0) {
         return "No se encontró ningún libro con ese ID";
     }
+
+    if (resultado.modifiedCount === 0) {
+    return "El libro existe, pero no se realizaron cambios";
+}
 
     return await librosCC.findOne({
         _id: new ObjectId(id)
@@ -143,6 +152,12 @@ switch (accion) {
             process.exit(1);
         }
 
+        // Valida números negativos
+        if (precioCrear < 0 || stockCrear < 0) {
+            console.log("El precio y el stock no pueden ser negativos");
+            process.exit(1);
+        }
+
         console.log(
             await agregarLibro(
                 tituloCrear,
@@ -179,6 +194,12 @@ switch (accion) {
             !Number.isFinite(stockActualizar)
         ) {
             console.log("El precio y el stock deben ser números válidos");
+            process.exit(1);
+        }
+
+        // Valida números negativos
+        if (precioActualizar < 0 || stockActualizar < 0) {
+            console.log("El precio y el stock no pueden ser negativos");
             process.exit(1);
         }
 
